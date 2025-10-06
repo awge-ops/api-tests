@@ -1,0 +1,21 @@
+﻿id,Компонент,Описание,Шаги воспроизведения,Ожидаемый результат,Комментарий,Result
+1,GET /api/test/users,Запрос списка пользователей по male,GET /api/test/users?gender=male,"HTTP 200; JSON: success:boolean,errorCode:int,errorMessage:null|string,result:[int]",FAIL — returned isSuccess/idList instead of success/result,FAIL
+2,GET /api/test/users,Запрос списка пользователей по female,GET /api/test/users?gender=female,HTTP 200; same format,FAIL — returned isSuccess/idList,FAIL
+3,GET /api/test/users,Без параметра gender,GET /api/test/users,HTTP 400 or 200 per spec,OK / behavior recorded,OK
+4,GET /api/test/users,Невалидный gender,GET /api/test/users?gender=abc,HTTP 4xx + errorMessage,FAIL — returned 500,FAIL
+5,GET /api/test/users,Case/trim для gender,"GET gender=Male, MALE, ' female '",Normalize or 4xx,FAIL — some responses 500,FAIL
+6,GET /api/test/users,Типы элементов result,GET /api/test/users?gender=male,result = array of int >=1,FAIL — field name mismatch but items are ints,FAIL
+7,GET /api/test/user/{id},Существующий id,GET /api/test/user/{id},HTTP 200; result object with fields,OK/partial,OK
+8,GET /api/test/user/{id},Несуществующий id,GET /api/test/user/999999,HTTP 404 + errorMessage,FAIL — returned 200,FAIL
+9,GET /api/test/user/{id},Невалидный id (строка),GET /api/test/user/abc,HTTP 4xx + errorMessage,OK,OK
+10,GET /api/test/user/{id},Граничные id,"GET /api/test/user/0, -1, 999999999",HTTP 4xx/404,FAIL — some returned 500,FAIL
+11,registrationDate,Формат даты,GET /api/test/user/{id},ISO 8601 string,OK,OK
+12,age/id types,Типы полей,GET /api/test/user/{id},"id:int, age:int>0",OK,OK
+13,cross-check gender,Согласованность gender,Get ids from /users?gender=female then /user/{id},gender == female,OK (where applicable),OK
+14,headers,Content-Type header,GET /api/test/users,Content-Type: application/json,OK,OK
+15,response time,Response time quick,5 requests /api/test/users?gender=male,max < 5s,OK,OK
+16,security,SQLi/XSS payloads,"gender=<script>, id=1;DROP TABLE",4xx or safe handling,FAIL — returned 500,FAIL
+17,unicode,Unicode support,GET /api/test/user/{id},names/city correct,OK,OK
+18,schema validation,JSON Schema validation,validate responses,match spec,FAIL — field name mismatch,FAIL
+19,rate limit,Rate limiting behaviour,20 quick requests,no 5xx; 429 if limited,OK,OK
+20,CORS,CORS headers (if used),OPTIONS / check headers,Access-Control-* or none,Not checked,N/A
